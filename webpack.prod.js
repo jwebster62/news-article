@@ -9,15 +9,34 @@ module.exports = {
     mode: 'production',
     module: {
         rules: [{
-            test: '/\.js$/',
-            exclude: /node_modules/,
-            loader: "babel-loader"
-        }]
+                test: '/\.js$/',
+                exclude: /node_modules/,
+                loader: "babel-loader"
+            },
+            {
+                test: '/\.scss$',
+                use: [
+                    { loader: MiniCssExtractPlugin.loader },
+                    { loader: "css-loader" },
+                    { loader: "sass-loader" }
+                ]
+            }
+        ]
     },
     plugins: [
         new HtmlWebPackPlugin({
             template: "./src/client/views/index.html",
             filename: "./index.html",
+        }),
+        new MiniCssExtractPlugin.GenerateSW({
+            clientsClaim: true,
+            skipWaiting: true
         })
-    ]
-}
+    ],
+    optimization: {
+        minimizer: [
+            new terserJSPlugin({}),
+            new OptimizeCSSAssetsPlugin({})
+        ]
+    }
+};
