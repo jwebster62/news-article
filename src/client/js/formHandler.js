@@ -1,16 +1,28 @@
-function handleSubmit(event) {
-    event.preventDefault()
+const headResult = document.querySelector("#results-heading");
+const contRes = document.querySelector("#results");
 
-    // check what text was put into the form field
-    let formText = document.getElementById('name').value
-    checkForName(formText)
+export const handleSubmit = (url, loadingBtn, header = headResult, container = contRes) => {
+    return fetch("/sentiment", {
+            method: "POST",
+            credentials: "same-origin",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ url })
+        })
+        .then(res => res.json())
+        .then(({ polarity, subjectivity, text }) => {
+            const polElem = document.createElement("p");
+            const subjElem = document.createElement("p");
 
-    console.log("::: Form Submitted :::")
-    fetch('http://localhost:8080/test')
-    .then(res => res.json())
-    .then(function(res) {
-        document.getElementById('results').innerHTML = res.message
-    })
-}
+            polElem.textContent = `Polarity: ${polarity}`;
+            subjElem.textContent = `Subjectivity: ${subjectivity}`;
 
-export { handleSubmit }
+            header.textContent = "Form Results:";
+            container.innerHTML = `<p>${text}</p>`;
+
+            container.insertAdjacentElement("afterbegin", subjElem);
+            container.insertAdjacentElement("afterbegin", polElem);
+
+            loadingBtn.value = "submit";
+        })
+        .catch(e => console.error(e));
+};
